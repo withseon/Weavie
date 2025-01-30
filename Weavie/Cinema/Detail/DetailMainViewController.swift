@@ -1,0 +1,174 @@
+//
+//  DetailMainViewController.swift
+//  Weavie
+//
+//  Created by 정인선 on 1/29/25.
+//
+
+import UIKit
+
+final class DetailMainViewController: BaseViewController {
+    private let mainView = DetailMainView()
+    var movie: Movie
+    private var backdropImages = [ImageInfo]()
+    private var posterImages = [ImageInfo]()
+    private var casts = [Cast]()
+    
+    init(movie: Movie) {
+        self.movie = movie
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    @MainActor required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func loadView() {
+        view = mainView
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        configureCollectionView()
+        configurePageControl()
+        configureButton()
+        fetchMovieInfo()
+    }
+    
+    override func configureNavigation() {
+        navigationItem.title = movie.title
+        let likeButton = UIBarButtonItem(image: UIImage(systemName: "heart"), style: .plain, target: self, action: #selector(likeButtonTapped))
+        navigationItem.rightBarButtonItem = likeButton
+    }
+    
+    @objc
+    private func likeButtonTapped() {
+        print(#function)
+        // TODO: 좋아요 버튼 클릭 시 동작
+    }
+}
+
+// MARK: - Network
+extension DetailMainViewController {
+    private func fetchMovieInfo() {
+        let group = DispatchGroup()
+        fetchMovieImageData(group: group)
+        fetchCreditData(group: group)
+        group.notify(queue: .main) { [weak self] in
+            guard let self else { return }
+            mainView.configureContent(movie: movie)
+            mainView.backdropCollectionView.reloadData()
+            mainView.castCollectionView.reloadData()
+            mainView.posterCollectionView.reloadData()
+            mainView.pageControl.numberOfPages = backdropImages.count
+        }
+    }
+    
+    private func fetchMovieImageData(group: DispatchGroup) {
+        group.enter()
+        TMDBManager.executeFetch(api: .image(id: movie.id), type: MovieImage.self) { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success(let success):
+                backdropImages = Array(success.backdrops.prefix(5))
+                posterImages = Array(success.posters
+                    .filter { $0.language == "ko" || $0.language == "en"}
+                    .sorted(by: {
+                        if let first = $0.language, let second = $1.language {
+                            return first > second
+                        }
+                        return true
+                    }).prefix(10))
+                group.leave()
+            case .failure(let failure):
+                showAlert(withCancel: false, title: "Network Error", message: failure.message, actionTitle: "확인")
+                group.leave()
+            }
+        }
+    }
+    
+    private func fetchCreditData(group: DispatchGroup) {
+        group.enter()
+        TMDBManager.executeFetch(api: .credit(id: movie.id), type: Credit.self) { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success(let success):
+                casts = success.cast ?? []
+                group.leave()
+            case .failure(let failure):
+                showAlert(withCancel: false, title: "Network Error", message: failure.message, actionTitle: "확인")
+                group.leave()
+            }
+        }
+    }
+}
+
+// MARK: - Configure PageControl, CollectionView, Button
+extension DetailMainViewController {
+    private func configurePageControl() {
+//        mainView.pageControl.numberOfPages = backdropImages.count
+        mainView.pageControl.currentPage = 0
+    }
+    
+    private func configureCollectionView() {
+        mainView.backdropCollectionView.isPagingEnabled = true
+        mainView.backdropCollectionView.showsHorizontalScrollIndicator = false
+        mainView.backdropCollectionView.delegate = self
+        mainView.backdropCollectionView.dataSource = self
+        mainView.backdropCollectionView.register(BackdropCollectionViewCell.self, forCellWithReuseIdentifier: BackdropCollectionViewCell.identifier)
+        
+        mainView.castCollectionView.showsHorizontalScrollIndicator = false
+        mainView.castCollectionView.delegate = self
+        mainView.castCollectionView.dataSource = self
+        mainView.castCollectionView.register(CastCollectionViewCell.self, forCellWithReuseIdentifier: CastCollectionViewCell.identifier)
+        
+        mainView.posterCollectionView.showsHorizontalScrollIndicator = false
+        mainView.posterCollectionView.delegate = self
+        mainView.posterCollectionView.dataSource = self
+        mainView.posterCollectionView.register(PosterCollectionViewCell.self, forCellWithReuseIdentifier: PosterCollectionViewCell.identifier)
+    }
+    
+    private func configureButton() {
+        mainView.moreButton.addTarget(self, action: #selector(moreButtonTapped), for: .touchUpInside)
+    }
+    
+    @objc
+    private func moreButtonTapped() {
+        mainView.moreButton.isSelected.toggle()
+        mainView.changeSynopsisLabelLine(isButtonSelected: mainView.moreButton.isSelected)
+    }
+}
+
+extension DetailMainViewController: UICollectionViewDelegate, UICollectionViewDataSource {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        if collectionView == mainView.backdropCollectionView {
+            return backdropImages.count
+        } else if collectionView == mainView.castCollectionView {
+            return casts.count
+        } else {
+            return posterImages.count
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        if collectionView == mainView.backdropCollectionView {
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BackdropCollectionViewCell.identifier, for: indexPath) as? BackdropCollectionViewCell else { return UICollectionViewCell() }
+            cell.configureContent(filePath: backdropImages[indexPath.item].filePath)
+            return cell
+        } else if collectionView == mainView.castCollectionView {
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CastCollectionViewCell.identifier, for: indexPath) as? CastCollectionViewCell else { return UICollectionViewCell() }
+            cell.configureContent(cast: casts[indexPath.item])
+            return cell
+        } else {
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PosterCollectionViewCell.identifier, for: indexPath) as? PosterCollectionViewCell else { return UICollectionViewCell() }
+            cell.configureContent(filePath: posterImages[indexPath.item].filePath)
+            return cell
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        if collectionView == mainView.backdropCollectionView {
+            mainView.pageControl.currentPage = indexPath.item
+        }
+    }
+}
