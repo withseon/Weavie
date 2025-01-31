@@ -9,8 +9,8 @@ import UIKit
 
 class BaseViewController: UIViewController {
     override func viewDidLoad() {
-        configureUI()
         configureNavigation()
+        configureUI()
     }
     
     private func configureUI() {
@@ -22,5 +22,7 @@ class BaseViewController: UIViewController {
     func configureHierarchy() { }
     func configureLayout() { }
     func configureView() { }
-    func configureNavigation() { }
+    func configureNavigation() {
+        navigationItem.backBarButtonItem = UIBarButtonItem(title: nil, style: .plain, target: self, action: nil)
+    }
 }
