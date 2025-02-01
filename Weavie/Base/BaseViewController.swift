@@ -8,6 +8,10 @@
 import UIKit
 
 class BaseViewController: UIViewController {
+    init() {
+        super.init(nibName: nil, bundle: nil)
+    }
+    
     override func viewDidLoad() {
         configureNavigation()
         configureUI()
@@ -24,5 +28,10 @@ class BaseViewController: UIViewController {
     func configureView() { }
     func configureNavigation() {
         navigationItem.backBarButtonItem = UIBarButtonItem(title: nil, style: .plain, target: self, action: nil)
+    }
+    
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }
