@@ -10,8 +10,8 @@ import Alamofire
 
 enum TMDBRouter {
     case trending
-    case search(query: String, page: Int)
-    case Image(id: Int)
+    case search(_ searchParam: SearchParam)
+    case image(id: Int)
     case credit(id: Int)
     
     var url: String {
@@ -20,7 +20,7 @@ enum TMDBRouter {
             return "\(APIURL.TMDB_URL)trending/movie/day"
         case .search:
             return "\(APIURL.TMDB_URL)search/movie"
-        case .Image(let id):
+        case .image(let id):
             return "\(APIURL.TMDB_URL)movie/\(id)/images"
         case .credit(let id):
             return "\(APIURL.TMDB_URL)movie/\(id)/credits"
@@ -32,18 +32,15 @@ enum TMDBRouter {
     }
         
     var parameters: Parameters? {
-        let languageParam: Parameters = ["language": "ko-KR"]
         switch self {
         case .trending:
-            return languageParam.merging(["page": 1]) { value, _ in value }
-        case .search(let query, let page):
-            return languageParam.merging(["include_adult": false,
-                                          "query": query,
-                                          "page": page]) { value, _ in value}
-        case .Image(_):
+            return TrendParam().toParameters
+        case .search(let searchParam):
+            return searchParam.toParameters
+        case .image:
             return nil
-        case .credit(_):
-            return languageParam
+        case .credit:
+            return CreditParam().toParameters
         }
     }
     
@@ -52,25 +49,25 @@ enum TMDBRouter {
     }
 }
 
-//struct TrendParam: Encodable {
-//    let language: String
-//    let page: Int
-//}
-//
-//struct SearchParam: Encodable {
-//    let query: String
-//    let includeAdult: Bool
-//    let language: String
-//    let page: Int
-//    
-//    enum CodingKeys: String, CodingKey {
-//        case query
-//        case includeAdult = "include_adult"
-//        case language
-//        case page
-//    }
-//}
-//
-//struct CreditParam: Encodable {
-//    let language: String
-//}
+struct TrendParam: Encodable {
+    let language: String = "ko-KR"
+    let page: Int = 1
+}
+
+struct SearchParam: Encodable {
+    var query: String = ""
+    let includeAdult: Bool = false
+    let language: String = "ko-KR"
+    var page: Int = 1
+    
+    enum CodingKeys: String, CodingKey {
+        case query
+        case includeAdult = "include_adult"
+        case language
+        case page
+    }
+}
+
+struct CreditParam: Encodable {
+    let language: String = "ko-KR"
+}

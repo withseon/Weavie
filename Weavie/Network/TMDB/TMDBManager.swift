@@ -98,3 +98,17 @@ extension TMDBManager {
         }
     }
 }
+
+extension TMDBManager {
+    static func getImageURL(type: ImageType, filePath: String) -> String {
+        return "\(APIURL.TMDB_IMAGE_URL)\(type.rawValue)\(filePath)"
+
+    }
+    
+    enum ImageType: String {
+        case mainPoster = "w500"
+        case subPoster = "w342"
+        case backdrop = "w780"
+        case credit = "w154"
+    }
+}

@@ -30,10 +30,10 @@ struct SearchMovie: Decodable {
 
 struct Movie: Decodable {
     let id: Int
-    let backdropPath: String?
+    let backdropPath: String
     let title: String
     let overview: String
-    let posterPath: String?
+    let posterPath: String
     let genreIDs: [Int]
     let releaseDate: String
     let voteAverage: Double
@@ -47,5 +47,22 @@ struct Movie: Decodable {
         case genreIDs = "genre_ids"
         case releaseDate = "release_date"
         case voteAverage = "vote_average"
+    }
+    
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decode(Int.self, forKey: .id)
+        self.backdropPath = try container.decodeIfPresent(String.self, forKey: .backdropPath) ?? "unknown"
+        self.title = try container.decode(String.self, forKey: .title)
+        let overview = try container.decode(String.self, forKey: .overview)
+        if overview.isEmpty {
+            self.overview = "시놉시스 준비중입니다."
+        } else {
+            self.overview = overview
+        }
+        self.posterPath = try container.decodeIfPresent(String.self, forKey: .posterPath) ?? "unknown"
+        self.genreIDs = try container.decode([Int].self, forKey: .genreIDs)
+        self.releaseDate = try container.decode(String.self, forKey: .releaseDate)
+        self.voteAverage = try container.decode(Double.self, forKey: .voteAverage)
     }
 }
