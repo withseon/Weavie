@@ -80,6 +80,10 @@ class MovieCollectionViewCell: BaseCollectionViewCell {
 extension MovieCollectionViewCell {
     func configureContent(movie: Movie) {
         posterImageView.setKFImage(strURL: "https://image.tmdb.org/t/p/w500\(movie.posterPath)")
+        if movie.posterPath != "unknown" {
+            let url = TMDBManager.getImageURL(type: .mainPoster, filePath: movie.posterPath)
+            posterImageView.setKFImage(strURL: url)
+        }
         titleLabel.text = movie.title
         descriptionLabel.text = movie.overview
     }

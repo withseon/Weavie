@@ -59,8 +59,9 @@ final class CastCollectionViewCell: BaseCollectionViewCell {
 
 extension CastCollectionViewCell {
     func configureContent(cast: Cast) {
-        if let profilePath = cast.profilePath {
-            profileImageView.setKFImage(strURL: "https://image.tmdb.org/t/p/w500\(profilePath)")
+        if cast.profilePath != "unknown" {
+            let url = TMDBManager.getImageURL(type: .credit, filePath: cast.profilePath)
+            profileImageView.setKFImage(strURL: url)
         }
         nameLabel.text = cast.name
         characterLabel.text = cast.character

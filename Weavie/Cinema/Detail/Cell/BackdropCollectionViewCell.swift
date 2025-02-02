@@ -35,8 +35,9 @@ final class BackdropCollectionViewCell: BaseCollectionViewCell {
 
 extension BackdropCollectionViewCell {
     func configureContent(filePath: String) {
-//        if let filePath {
-            backdropImageView.setKFImage(strURL: "https://image.tmdb.org/t/p/w500\(filePath)")
-//        }
+        if filePath != "unknown" {
+            let url = TMDBManager.getImageURL(type: .backdrop, filePath: filePath)
+            backdropImageView.setKFImage(strURL: url)
+        }
     }
 }

@@ -34,6 +34,7 @@ final class PosterCollectionViewCell: BaseCollectionViewCell {
 
 extension PosterCollectionViewCell {
     func configureContent(filePath: String) {
-        posterImageView.setKFImage(strURL: "https://image.tmdb.org/t/p/w500\(filePath)")
+        let url = TMDBManager.getImageURL(type: .subPoster, filePath: filePath)
+        posterImageView.setKFImage(strURL: url)
     }
 }

@@ -101,6 +101,9 @@ extension MovieTableViewCell {
     func configureContent(movie: Movie) {
         if let posterPath = movie.posterPath {
             posterImageView.setKFImage(strURL: "https://image.tmdb.org/t/p/w500\(posterPath)")
+        if movie.posterPath != "unknown" {
+            let url = TMDBManager.getImageURL(type: .subPoster, filePath: movie.posterPath)
+            posterImageView.setKFImage(strURL: url)
         }
         movieTitleLabel.text = movie.title
         let releaseDate = movie.releaseDate.toDate("yyyy-MM-dd")
