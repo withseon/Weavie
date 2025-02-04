@@ -83,6 +83,7 @@ final class ProfileCardView: BaseView {
 extension ProfileCardView {
     func configureContent(user: User, likedMovieCount: Int) {
         profileImageView.setProfileImage(imageNum: 0)
+        profileImageView.setProfileImage(image: Resource.AssetImage.profile(user.imageIndex).path)
         nicknameLabel.text = user.nickname
         registerDateLabel.text = user.registerDate.toFormattedString("yy년 MM월 dd일 가입")
         movieboxButton.configuration?.attributedTitle = AttributedString("\(likedMovieCount)개의 무비박스 보관중", attributes: AttributeContainer([.font: UIFont.systemFont(ofSize: 14, weight: .semibold)]))

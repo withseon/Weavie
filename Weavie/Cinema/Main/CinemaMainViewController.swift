@@ -34,6 +34,7 @@ class CinemaMainViewController: BaseViewController {
     override func configureNavigation() {
         super.configureNavigation()
         navigationItem.title = "Weavie"
+        navigationItem.title = Resource.NavTitle.main.rawValue
         let searchButtonItem = UIBarButtonItem(image: UIImage(systemName: "magnifyingglass"),
                                             style: .plain,
                                             target: self,
