@@ -37,7 +37,7 @@ final class DetailMainViewController: BaseViewController {
     
     override func configureNavigation() {
         navigationItem.title = movie.title
-        let likeButton = UIBarButtonItem(image: UIImage(systemName: "heart"), style: .plain, target: self, action: #selector(likeButtonTapped))
+        let likeButton = UIBarButtonItem(image: UIImage(systemName: isLiked ? "heart.fill" : "heart"), style: .plain, target: self, action: #selector(likeButtonTapped))
         navigationItem.rightBarButtonItem = likeButton
     }
     

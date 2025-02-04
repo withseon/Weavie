@@ -11,7 +11,7 @@ import SnapKit
 class MovieCollectionViewCell: BaseCollectionViewCell {
     private let posterImageView = UIImageView()
     private let titleLabel = UILabel()
-    private let heartButton = UIButton()
+    let likeButton = UIButton()
     private let descriptionLabel = UILabel()
     
     override func prepareForReuse() {
@@ -24,7 +24,7 @@ class MovieCollectionViewCell: BaseCollectionViewCell {
     override func configureHierarchy() {
         contentView.addSubview(posterImageView)
         contentView.addSubview(titleLabel)
-        contentView.addSubview(heartButton)
+        contentView.addSubview(likeButton)
         contentView.addSubview(descriptionLabel)
     }
     
@@ -38,7 +38,7 @@ class MovieCollectionViewCell: BaseCollectionViewCell {
             make.height.equalTo(20)
             make.leading.equalToSuperview()
         }
-        heartButton.snp.makeConstraints { make in
+        likeButton.snp.makeConstraints { make in
             make.top.equalTo(posterImageView.snp.bottom).offset(4)
             make.size.equalTo(titleLabel.snp.height)
             make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(8)
@@ -62,11 +62,18 @@ class MovieCollectionViewCell: BaseCollectionViewCell {
         titleLabel.textColor = .mainLabel
         titleLabel.font = .systemFont(ofSize: 15, weight: .semibold)
         
-        var heartConfig = UIButton.Configuration.plain()
-        heartConfig.image = UIImage(systemName: "heart")
-        heartConfig.baseForegroundColor = .tint
-        heartConfig.imagePadding = 0
-        heartButton.configuration = heartConfig
+        likeButton.configurationUpdateHandler = { button in
+            var config = UIButton.Configuration.plain()
+            config.baseBackgroundColor = .clear
+            config.baseForegroundColor = .tint
+            switch button.state {
+            case .selected:
+                config.image = UIImage(systemName: "heart.fill")
+            default:
+                config.image = UIImage(systemName: "heart")
+            }
+            button.configuration = config
+        }
         
         descriptionLabel.text = "DescriptionDescriptionDescriptionDescriptionDescriptionDescriptionDescriptionDescriptionDescriptionDescriptionDescriptionDescriptionDescription"
         descriptionLabel.textColor = .mainLabel

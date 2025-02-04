@@ -91,8 +91,20 @@ extension MovieTableViewCell {
         genreStackView.spacing = 4
         genreStackView.distribution = .equalSpacing
         
-        likeButton.setImage(UIImage(systemName: "heart"), for: .normal)
-        likeButton.tintColor = .tint
+        likeButton.configurationUpdateHandler = { button in
+            var config = UIButton.Configuration.plain()
+            config.baseBackgroundColor = .clear
+            config.baseForegroundColor = .tint
+            config.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(pointSize: 16)
+            config.contentInsets = NSDirectionalEdgeInsets(top: 4, leading: 4, bottom: 0, trailing: 0)
+            switch button.state {
+            case .selected:
+                config.image = UIImage(systemName: "heart.fill")
+            default:
+                config.image = UIImage(systemName: "heart")
+            }
+            button.configuration = config
+        }
     }
 }
 
