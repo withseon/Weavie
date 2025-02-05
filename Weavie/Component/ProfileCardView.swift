@@ -58,11 +58,9 @@ final class ProfileCardView: BaseView {
         labelStackView.spacing = 4
         
         nicknameLabel.font = .systemFont(ofSize: 16, weight: .bold)
-        nicknameLabel.text = "NICKNAMENICKNAMENICKNAMENICKNAME"
         nicknameLabel.textColor = .mainLabel
         
         registerDateLabel.font = .systemFont(ofSize: 12)
-        registerDateLabel.text = "yy.MM.dd 가입"
         registerDateLabel.textColor = .subLabel
         
         var chevronConfig = UIButton.Configuration.plain()
@@ -72,7 +70,6 @@ final class ProfileCardView: BaseView {
         chevronButton.configuration = chevronConfig
         
         var movieboxConfig = UIButton.Configuration.filled()
-        movieboxConfig.attributedTitle = AttributedString("NNN 개의 무비박스 보관중", attributes: AttributeContainer([.font: UIFont.systemFont(ofSize: 14, weight: .semibold)]))
         movieboxConfig.baseBackgroundColor = .tint
         movieboxConfig.baseForegroundColor = .mainLabel
         movieboxConfig.cornerStyle = .medium
@@ -82,8 +79,6 @@ final class ProfileCardView: BaseView {
 }
 
 extension ProfileCardView {
-    func configureContent(user: User, likedMovieCount: Int) {
-        profileImageView.setProfileImage(imageNum: 0)
     func setUserProfile(user: User) {
         profileImageView.setProfileImage(image: Resource.AssetImage.profile(user.imageIndex).path)
         nicknameLabel.text = user.nickname
@@ -92,6 +87,5 @@ extension ProfileCardView {
     
     func setMovieboxButton(likedMovieCount: Int) {
         movieboxButton.configuration?.attributedTitle = AttributedString("\(likedMovieCount)개의 무비박스 보관중", attributes: AttributeContainer([.font: UIFont.systemFont(ofSize: 14, weight: .semibold)]))
-
     }
 }

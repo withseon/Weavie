@@ -31,11 +31,20 @@ class CinemaMainViewController: BaseViewController {
         configureButton()
         configureCollectionView()
         fetchTrendMovieData()
-        mainView.updateSearchRecordView(isEmpty: searchTexts.isEmpty)
+        NotificationManager.center.addObserver(self,
+                                               selector: #selector(updateProfile),
+                                               name: .user,
+                                               object: nil)
         NotificationManager.center.addObserver(self,
                                                selector: #selector(updateLikedMovies),
                                                name: .movieLike,
                                                object: nil)
+    }
+    
+    @objc
+    private func updateProfile() {
+        guard let user = UserDefaultsManager.user else { return }
+        mainView.updateProfileCardView(user: user)
     }
     
     @objc
@@ -66,7 +75,7 @@ class CinemaMainViewController: BaseViewController {
               let searchRecord = UserDefaultsManager.searchRecord else { return }
         
         let gesture = UITapGestureRecognizer(target: self, action: #selector(profileCardViewTapped))
-        mainView.updateProfileCardView(user: user, likedMovieCount: likedMovie.count, gesture: gesture)
+        mainView.setProfileCardGesture(gesture)
         
         self.likedMovies = likedMovies
         self.searchRecord = searchRecord
@@ -81,7 +90,10 @@ class CinemaMainViewController: BaseViewController {
     
     @objc
     private func profileCardViewTapped() {
-        let nav = UINavigationController(rootViewController: ProfileMainViewController())
+        guard let user = UserDefaultsManager.user else { return }
+        let vc = EditProfileNicknameViewController()
+        vc.updateUserInfo(user: user)
+        let nav = UINavigationController(rootViewController: vc)
         present(nav, animated: true)
     }
 }
@@ -192,6 +204,8 @@ extension CinemaMainViewController: UICollectionViewDelegate, UICollectionViewDa
                     guard let self else { return }
                     likedMovies = UserDefaultsManager.likedMovies ?? []
                     mainView.movieCollectionView.reloadItems(at: [indexPath])
+                    NotificationManager.center.post(name: .movieLike,
+                                                    object: nil)
 //                }
             }
             navigationController?.pushViewController(vc, animated: true)

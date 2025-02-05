@@ -18,9 +18,19 @@ final class SettingMainViewController: BaseViewController {
         super.viewDidLoad()
         configureTableView()
         NotificationManager.center.addObserver(self,
+                                       selector: #selector(updateProfile),
+                                       name: .user,
+                                       object: nil)
+        NotificationManager.center.addObserver(self,
                                        selector: #selector(updateLikedMovies),
                                        name: .movieLike,
                                        object: nil)
+    }
+    
+    @objc
+    private func updateProfile() {
+        guard let user = UserDefaultsManager.user else { return }
+        mainView.updateProfileCardView(user: user)
     }
     
     @objc

@@ -40,7 +40,9 @@ final class ProfileImageView: BaseView {
     
     override func configureView() {
         backgroundColor = .clear
+        profileImageView.backgroundColor = .mainBackground
         profileImageView.clipsToBounds = true
+        profileImageView.contentMode = .scaleAspectFit
         
         cameraCoverView.backgroundColor = .tint
         cameraImageView.clipsToBounds = true
