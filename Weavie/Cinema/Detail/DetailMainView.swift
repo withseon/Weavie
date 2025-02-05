@@ -158,7 +158,7 @@ final class DetailMainView: BaseView {
         firstSeparatorView.backgroundColor = .subLabel
         secondSeparatorView.backgroundColor = .subLabel
         
-        synopsisLabel.text = "SynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynopsisSynops"
+        synopsisLabel.numberOfLines = 0
         synopsisLabel.font = .systemFont(ofSize: 13)
         synopsisLabel.numberOfLines = 3
         print(synopsisLabel.intrinsicContentSize)
@@ -212,6 +212,11 @@ extension DetailMainView {
                                     .map { Resource.Genre(rawValue: $0)?.name ?? "-" }.joined(separator: ", ")
         }
         synopsisLabel.text = movie.overview
+        
+        let oldLabelHeight = synopsisLabel.intrinsicContentSize.height
+        synopsisLabel.numberOfLines = 3
+        let newLabelHeight = synopsisLabel.intrinsicContentSize.height
+        moreButton.isHidden = oldLabelHeight <= newLabelHeight
     }
     
     func changeSynopsisLabelLine(isButtonSelected: Bool) {
