@@ -9,6 +9,13 @@ import UIKit
 
 class SearchMainViewController: BaseViewController {
     private let mainView = SearchMainView()
+    private var likedMovies = UserDefaultsManager.likedMovies ?? [] {
+        willSet {
+            UserDefaultsManager.likedMovies = newValue
+        }
+    }
+    
+    private var searchParam = SearchParam()
     private var totalPage = 1
     private var page = 1
     private var resultMovies = [Movie]()
@@ -109,15 +116,27 @@ extension SearchMainViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = mainView.movieTableView.dequeueReusableCell(withIdentifier: MovieTableViewCell.identifier, for: indexPath) as? MovieTableViewCell else { return UITableViewCell() }
-        cell.configureContent(movie: resultMovies[indexPath.row])
+        let movie = resultMovies[indexPath.row]
+        cell.configureContent(movie: movie)
+        cell.likeButton.isSelected = likedMovies.contains(movie.id)
+        cell.likeButton.tag = indexPath.row
         cell.likeButton.addTarget(self, action: #selector(likeButtonTapped), for: .touchUpInside)
         return cell
     }
     
     @objc
-    private func likeButtonTapped() {
-        print(#function)
-        // TODO: 좋아요 버튼 클릭 액션
+    private func likeButtonTapped(sender: UIButton) {
+        let movieID = resultMovies[sender.tag].id
+        sender.isSelected.toggle()
+        
+        if sender.isSelected {
+            likedMovies.insert(movieID)
+        } else {
+            likedMovies.remove(movieID)
+        }
+        NotificationManager.center.post(name: .movieLike,
+                                                    object: nil,
+                                                    userInfo: [NotificationManager.movieKey: movieID])
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
@@ -131,7 +150,16 @@ extension SearchMainViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let vc = DetailMainViewController(movie: resultMovies[indexPath.row])
+        let movie = resultMovies[indexPath.row]
+        let isLiked = likedMovies.contains(movie.id)
+        let vc = DetailMainViewController(movie: movie, isLiked: isLiked) { [weak self] in
+            guard let self else { return }
+            likedMovies = UserDefaultsManager.likedMovies ?? []
+            mainView.movieTableView.reloadRows(at: [indexPath], with: .none)
+            NotificationManager.center.post(name: .movieLike,
+                                                        object: nil,
+                                                        userInfo: [NotificationManager.movieKey: movie.id])
+        }
         navigationController?.pushViewController(vc, animated: true)
         tableView.deselectRow(at: indexPath, animated: true)
     }

@@ -51,8 +51,8 @@ final class ProfileImageView: BaseView {
 }
 
 extension ProfileImageView {
-    func setProfileImage(imageNum: Int) {
-        profileImageView.image = UIImage(named: "profile_\(imageNum)")
+    func setProfileImage(image: String) {
+        profileImageView.image = UIImage(named: image)
     }
     
     func setState(isMain: Bool) {

@@ -83,11 +83,19 @@ final class CinemaMainView: BaseView {
 
 // MARK: - UI 업데이트
 extension CinemaMainView {
-    func updateProfileCardView(user: User, likedMovieCount: Int, gesture: UIGestureRecognizer) {
-        profileCardView.configureContent(user: user, likedMovieCount: likedMovieCount)
-        profileCardView.addGestureRecognizer(gesture)
+    func updateProfileCardView(user: User? = nil, likedMovieCount: Int? = nil) {
+        if let user {
+            profileCardView.setUserProfile(user: user)
+        }
+        if let likedMovieCount {
+            profileCardView.setMovieboxButton(likedMovieCount: likedMovieCount)
+        }
     }
     
+    func setProfileCardGesture(_ gesture: UIGestureRecognizer) {
+        profileCardView.addGestureRecognizer(gesture)
+    }
+
     func updateSearchRecordView(isEmpty: Bool) {
         if isEmpty {
             emptyLabel.isHidden = false

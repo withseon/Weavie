@@ -17,6 +17,19 @@ final class SettingMainViewController: BaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureTableView()
+        NotificationManager.center.addObserver(self,
+                                       selector: #selector(updateLikedMovies),
+                                       name: .movieLike,
+                                       object: nil)
+    }
+    
+    @objc
+    private func updateLikedMovies() {
+        guard let likedMovies = UserDefaultsManager.likedMovies else { return }
+        mainView.updateProfileCardView(likedMovieCount: likedMovies.count)
+    }
+
+    
     override func configureNavigation() {
         super.configureNavigation()
         navigationItem.title = Resource.NavTitle.setting.rawValue

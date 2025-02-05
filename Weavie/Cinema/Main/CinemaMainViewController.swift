@@ -15,6 +15,9 @@ class CinemaMainViewController: BaseViewController {
     private var searchTexts = ["현빈", "스파이더", "해리포터", "소방관", "크리스마스"] {
         didSet {
             mainView.updateSearchRecordView(isEmpty: searchTexts.isEmpty)
+    private var likedMovies = Set<Int>() {
+        willSet {
+            UserDefaultsManager.likedMovies = newValue
         }
     }
     private var trendMovies = [Movie]()
@@ -29,6 +32,21 @@ class CinemaMainViewController: BaseViewController {
         configureCollectionView()
         fetchTrendMovieData()
         mainView.updateSearchRecordView(isEmpty: searchTexts.isEmpty)
+        NotificationManager.center.addObserver(self,
+                                               selector: #selector(updateLikedMovies),
+                                               name: .movieLike,
+                                               object: nil)
+    }
+    
+    @objc
+    private func updateLikedMovies(value: Notification) {
+        likedMovies = UserDefaultsManager.likedMovies ?? []
+        mainView.updateProfileCardView(likedMovieCount: likedMovies.count)
+        if let movieID = value.userInfo?[NotificationManager.movieKey] as? Int {
+            if !trendMovies.filter({ $0.id == movieID }).isEmpty {
+                mainView.movieCollectionView.reloadData()
+            }
+        }
     }
     
     override func configureNavigation() {
@@ -43,8 +61,16 @@ class CinemaMainViewController: BaseViewController {
     }
     
     override func configureView() {
+        guard let user = UserDefaultsManager.user,
+              let likedMovies = UserDefaultsManager.likedMovies,
+              let searchRecord = UserDefaultsManager.searchRecord else { return }
+        
         let gesture = UITapGestureRecognizer(target: self, action: #selector(profileCardViewTapped))
         mainView.updateProfileCardView(user: user, likedMovieCount: likedMovie.count, gesture: gesture)
+        
+        self.likedMovies = likedMovies
+        self.searchRecord = searchRecord
+        mainView.updateProfileCardView(user: user, likedMovieCount: likedMovies.count)
     }
     
     @objc
@@ -122,7 +148,11 @@ extension CinemaMainViewController: UICollectionViewDelegate, UICollectionViewDa
             return cell
         } else {
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MovieCollectionViewCell.identifier, for: indexPath) as? MovieCollectionViewCell else { return UICollectionViewCell() }
-            cell.configureContent(movie: trendMovies[indexPath.item])
+            let movie = trendMovies[indexPath.item]
+            cell.configureContent(movie: movie)
+            cell.likeButton.isSelected = likedMovies.contains(movie.id)
+            cell.likeButton.tag = indexPath.item
+            cell.likeButton.addTarget(self, action: #selector(likeButtonTapped), for: .touchUpInside)
             return cell
         }
     }
@@ -135,13 +165,35 @@ extension CinemaMainViewController: UICollectionViewDelegate, UICollectionViewDa
         mainView.recentSearchCollectionView.reloadData()
     }
     
+    @objc
+    private func likeButtonTapped(sender: UIButton) {
+        let movieID = trendMovies[sender.tag].id
+        sender.isSelected.toggle()
+        if sender.isSelected {
+            likedMovies.insert(movieID)
+        } else {
+            likedMovies.remove(movieID)
+        }
+        NotificationManager.center.post(name: .movieLike,
+                                        object: nil)
+    }
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == mainView.recentSearchCollectionView {
             let vc = SearchMainViewController()
             vc.searchText = searchTexts[indexPath.item]
             navigationController?.pushViewController(vc, animated: true)
         } else {
-            let vc = ProfileMainViewController()
+            // 추천 영화
+            let movie = trendMovies[indexPath.item]
+            let isLiked = likedMovies.contains(movie.id)
+            let vc = DetailMainViewController(movie: movie, isLiked: isLiked) {
+                /*UIView.performWithoutAnimation { */[weak self] in
+                    guard let self else { return }
+                    likedMovies = UserDefaultsManager.likedMovies ?? []
+                    mainView.movieCollectionView.reloadItems(at: [indexPath])
+//                }
+            }
             navigationController?.pushViewController(vc, animated: true)
         }
     }

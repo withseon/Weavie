@@ -9,18 +9,17 @@ import UIKit
 
 final class DetailMainViewController: BaseViewController {
     private let mainView = DetailMainView()
-    var movie: Movie
+    private var movie: Movie
+    private var isLiked: Bool
+    private var onUpdate: (() -> Void)?
     private var backdropImages = [ImageInfo]()
     private var posterImages = [ImageInfo]()
     private var casts = [Cast]()
     
-    init(movie: Movie) {
         self.movie = movie
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    @MainActor required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        self.isLiked = isLiked
+        self.onUpdate = onUpdate
+        super.init()
     }
     
     override func loadView() {
@@ -43,8 +42,16 @@ final class DetailMainViewController: BaseViewController {
     
     @objc
     private func likeButtonTapped() {
-        print(#function)
-        // TODO: 좋아요 버튼 클릭 시 동작
+        var likedMovies = UserDefaultsManager.likedMovies ?? []
+        isLiked.toggle()
+        navigationItem.rightBarButtonItem?.image = UIImage(systemName: isLiked ? "heart.fill" : "heart")
+        if isLiked {
+            likedMovies.insert(movie.id)
+        } else {
+            likedMovies.remove(movie.id)
+        }
+        UserDefaultsManager.likedMovies = likedMovies
+        onUpdate?()
     }
 }
 

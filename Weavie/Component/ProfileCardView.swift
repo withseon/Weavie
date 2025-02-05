@@ -77,15 +77,20 @@ final class ProfileCardView: BaseView {
         movieboxConfig.baseForegroundColor = .mainLabel
         movieboxConfig.cornerStyle = .medium
         movieboxButton.configuration = movieboxConfig
+        movieboxButton.isUserInteractionEnabled = false
     }
 }
 
 extension ProfileCardView {
     func configureContent(user: User, likedMovieCount: Int) {
         profileImageView.setProfileImage(imageNum: 0)
+    func setUserProfile(user: User) {
         profileImageView.setProfileImage(image: Resource.AssetImage.profile(user.imageIndex).path)
         nicknameLabel.text = user.nickname
         registerDateLabel.text = user.registerDate.toFormattedString("yy년 MM월 dd일 가입")
+    }
+    
+    func setMovieboxButton(likedMovieCount: Int) {
         movieboxButton.configuration?.attributedTitle = AttributedString("\(likedMovieCount)개의 무비박스 보관중", attributes: AttributeContainer([.font: UIFont.systemFont(ofSize: 14, weight: .semibold)]))
 
     }
