@@ -9,12 +9,12 @@ import UIKit
 import SnapKit
 
 final class SearchMainView: BaseView {
-    let movieTableView = UITableView()
     private let emptyLabel = UILabel()
+    let movieTableView = UITableView()
     
     override func configureHierarchy() {
-        addSubview(movieTableView)
         addSubview(emptyLabel)
+        addSubview(movieTableView)
     }
     
     override func configureLayout() {
@@ -30,7 +30,9 @@ final class SearchMainView: BaseView {
         emptyLabel.text = "원하는 검색 결과를 찾지 못했습니다."
         emptyLabel.font = .systemFont(ofSize: 14)
         emptyLabel.textColor = .subLabel
+        
         emptyLabel.isHidden = true
+        movieTableView.isHidden =  true
     }
 }
 

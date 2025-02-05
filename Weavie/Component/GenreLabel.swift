@@ -15,7 +15,7 @@ final class GenreLabel: UILabel {
         super.init(frame: .zero)
         self.text = text
         textColor = .mainLabel
-        backgroundColor = .subLabel
+        backgroundColor = .secondaryBackground
         font = .systemFont(ofSize: 12)
         clipsToBounds = true
         layer.cornerRadius = 5
