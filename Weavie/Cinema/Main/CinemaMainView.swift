@@ -10,13 +10,11 @@ import SnapKit
 
 final class CinemaMainView: BaseView {
     private let profileCardView = ProfileCardView()
-    private let searchTitleLabel = TitleLabel(text: "최근 검색어")
     private let searchTitleLabel = TitleLabel(text: Resource.LabelText.searchRecord.rawValue)
     let deleteAllButton = UIButton()
     private let resultCoverView = UIView()
     let recentSearchCollectionView = UICollectionView(frame: .zero, collectionViewLayout: getRecentSearchCollectionViewLayout())
     private let emptyLabel = UILabel()
-    private let movieTitleLabel = TitleLabel(text: "오늘의 영화")
     private let movieTitleLabel = TitleLabel(text: Resource.LabelText.todayMovie.rawValue)
     let movieCollectionView = UICollectionView(frame: .zero, collectionViewLayout: getMovieCollectionViewLayout())
     

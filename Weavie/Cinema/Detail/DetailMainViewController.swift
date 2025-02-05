@@ -65,9 +65,6 @@ extension DetailMainViewController {
         group.notify(queue: .main) { [weak self] in
             guard let self else { return }
             mainView.configureContent(movie: movie)
-            mainView.backdropCollectionView.reloadData()
-            mainView.castCollectionView.reloadData()
-            mainView.posterCollectionView.reloadData()
             mainView.pageControl.numberOfPages = backdropImages.count
         }
     }
@@ -107,7 +104,6 @@ extension DetailMainViewController {
 // MARK: - Configure PageControl, CollectionView, Button
 extension DetailMainViewController {
     private func configurePageControl() {
-//        mainView.pageControl.numberOfPages = backdropImages.count
         mainView.pageControl.currentPage = 0
     }
     

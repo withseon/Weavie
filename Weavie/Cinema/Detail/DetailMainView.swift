@@ -22,22 +22,13 @@ final class DetailMainView: BaseView {
     private let filmLabel = UILabel()
     private let firstSeparatorView = UIView()
     private let secondSeparatorView = UIView()
-    private let synopsisTitleLabel = TitleLabel(text: "Synopsis")
     private let synopsisTitleLabel = TitleLabel(text: Resource.LabelText.synopsis.rawValue)
     private let synopsisLabel = UILabel()
     let moreButton = UIButton()
-    private let castTitleLabel = TitleLabel(text: "Cast")
     private let castTitleLabel = TitleLabel(text: Resource.LabelText.cast.rawValue)
     let castCollectionView = UICollectionView(frame: .zero, collectionViewLayout: getCastCollectionViewLayout())
-    private let posterTitleLabel = TitleLabel(text: "Poster")
     private let posterTitleLabel = TitleLabel(text: Resource.LabelText.poster.rawValue)
     let posterCollectionView = UICollectionView(frame: .zero, collectionViewLayout: getPosterCollectionViewLayout())
-    
-    override func layoutSubviews() {
-        // TODO: more 버튼 숨기기
-        print(synopsisLabel.intrinsicContentSize)
-    }
-    
         
     override func configureHierarchy() {
         addSubview(scrollView)
@@ -140,7 +131,6 @@ final class DetailMainView: BaseView {
         
         calendarImageView.image = UIImage(systemName: "calendar")
         calendarImageView.tintColor = .subLabel
-        releaseLabel.text = "8888-88-88"
         releaseLabel.text = "yyy-MM-dd"
         releaseLabel.textColor = .subLabel
         releaseLabel.font = .systemFont(ofSize: 12)
@@ -151,7 +141,6 @@ final class DetailMainView: BaseView {
         gradeLabel.font = .systemFont(ofSize: 12)
         filmImageView.image = UIImage(systemName: "calendar")
         filmImageView.tintColor = .subLabel
-        filmLabel.text = "액션, 미스터리"
         filmLabel.text = "-"
         filmLabel.textColor = .subLabel
         filmLabel.font = .systemFont(ofSize: 12)
@@ -160,8 +149,6 @@ final class DetailMainView: BaseView {
         
         synopsisLabel.numberOfLines = 0
         synopsisLabel.font = .systemFont(ofSize: 13)
-        synopsisLabel.numberOfLines = 3
-        print(synopsisLabel.intrinsicContentSize)
         
         moreButton.setAttributedTitle(NSAttributedString(string: "More", attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .semibold)]), for: .normal)
         moreButton.setAttributedTitle(NSAttributedString(string: "Hide", attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .semibold)]), for: .selected)
@@ -220,7 +207,6 @@ extension DetailMainView {
     }
     
     func changeSynopsisLabelLine(isButtonSelected: Bool) {
-        // TODO: 애니메이션
         synopsisLabel.numberOfLines = isButtonSelected ? 0 : 3
     }
 }

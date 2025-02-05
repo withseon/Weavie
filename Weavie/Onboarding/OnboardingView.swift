@@ -41,20 +41,14 @@ final class OnboardingView: BaseView {
     }
     
     override func configureView() {
-        mainImageView.image = UIImage(named: "onboarding")
         mainImageView.image = UIImage(named: Resource.AssetImage.onbaording.path)
         
-        titleLabel.text = "Weavie"
         titleLabel.text = Resource.appName
         titleLabel.font = .systemFont(ofSize: 30, weight: .heavy)
         titleLabel.textColor = .mainLabel
         
         descriptionLabel.numberOfLines = 2
         descriptionLabel.textAlignment = .center
-        descriptionLabel.text = """
-                                당신만의 영화 세상,
-                                Weavie를 시작해보세요.
-                                """
         descriptionLabel.text = Resource.LabelText.onboarding.rawValue
         descriptionLabel.font = .systemFont(ofSize: 14)
         descriptionLabel.textColor = .mainLabel

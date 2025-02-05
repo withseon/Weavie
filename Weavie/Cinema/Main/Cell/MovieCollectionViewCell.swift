@@ -8,7 +8,6 @@
 import UIKit
 import SnapKit
 
-class MovieCollectionViewCell: BaseCollectionViewCell {
 final class MovieCollectionViewCell: BaseCollectionViewCell {
     private let posterImageView = UIImageView()
     private let titleLabel = UILabel()
@@ -76,18 +75,14 @@ final class MovieCollectionViewCell: BaseCollectionViewCell {
             button.configuration = config
         }
         
-        descriptionLabel.text = "DescriptionDescriptionDescriptionDescriptionDescriptionDescriptionDescriptionDescriptionDescriptionDescriptionDescriptionDescriptionDescription"
         descriptionLabel.textColor = .mainLabel
         descriptionLabel.font = .systemFont(ofSize: 13)
         descriptionLabel.numberOfLines = 2
-        descriptionLabel.layer.borderColor = UIColor.red.cgColor
-        descriptionLabel.layer.borderWidth = 1
     }
 }
 
 extension MovieCollectionViewCell {
     func configureContent(movie: Movie) {
-        posterImageView.setKFImage(strURL: "https://image.tmdb.org/t/p/w500\(movie.posterPath)")
         if movie.posterPath != "unknown" {
             let url = TMDBManager.getImageURL(type: .mainPoster, filePath: movie.posterPath)
             posterImageView.setKFImage(strURL: url)

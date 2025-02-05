@@ -62,7 +62,6 @@ final class CinemaMainViewController: BaseViewController {
     
     override func configureNavigation() {
         super.configureNavigation()
-        navigationItem.title = "Weavie"
         navigationItem.title = Resource.NavTitle.main.rawValue
         let searchButtonItem = UIBarButtonItem(image: UIImage(systemName: "magnifyingglass"),
                                             style: .plain,
@@ -119,7 +118,6 @@ extension CinemaMainViewController {
                 showAlert(withCancel: false, title: "네트워크 오류", message: failure.message, actionTitle: "확인")
             }
         }
-
     }
 }
 
@@ -178,7 +176,6 @@ extension CinemaMainViewController: UICollectionViewDelegate, UICollectionViewDa
     
     @objc
     private func xmarkImageTapped(sender: UITapGestureRecognizer) {
-        print(#function)
         guard let view = sender.view else { return }
         searchRecord[sortedSearchRecord[view.tag]] = nil
         mainView.recentSearchCollectionView.reloadData()

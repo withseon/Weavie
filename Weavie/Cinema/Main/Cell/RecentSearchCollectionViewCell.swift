@@ -35,7 +35,6 @@ final class RecentSearchCollectionViewCell: BaseCollectionViewCell {
         contentView.layer.cornerRadius = self.frame.height / 2
         
         searchLabel.textColor = .mainBackground
-        searchLabel.text = "검색어"
         searchLabel.font = .systemFont(ofSize: 14)
         
         xmarkImageView.image = UIImage(systemName: "xmark")
