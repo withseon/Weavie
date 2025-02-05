@@ -112,11 +112,11 @@ extension CinemaMainViewController {
         TMDBManager.executeFetch(api: .trending, type: TrendMovie.self) { [weak self] result in
             guard let self else { return }
             switch result {
-            case .success(let value):
-                trendMovies = value.results
+            case .success(let success):
+                trendMovies = success.results
                 mainView.movieCollectionView.reloadData()
-            case .failure(let error):
-                print(error.message)
+            case .failure(let failure):
+                showAlert(withCancel: false, title: "네트워크 오류", message: failure.message, actionTitle: "확인")
             }
         }
 

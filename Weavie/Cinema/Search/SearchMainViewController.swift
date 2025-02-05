@@ -31,7 +31,13 @@ class SearchMainViewController: BaseViewController {
         configureTableView()
         if let searchText {
             navigationItem.searchController?.searchBar.text = searchText
-            fetchSearchMovieData(query: searchText, page: 1)
+            searchParam.query = searchText
+            fetchSearchMovieData()
+        } else {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.55) { [weak self] in
+                guard let self else { return }
+                navigationItem.searchController?.searchBar.becomeFirstResponder()
+            }
         }
     }
     
@@ -54,8 +60,8 @@ class SearchMainViewController: BaseViewController {
 
 // MARK: - Network
 extension SearchMainViewController {
-    private func fetchSearchMovieData(query: String, page: Int) {
-        TMDBManager.executeFetch(api: .search(query: query, page: page), type: SearchMovie.self) { [weak self] result in
+    private func fetchSearchMovieData() {
+        TMDBManager.executeFetch(api: .search(searchParam), type: SearchMovie.self) { [weak self] result in
             guard let self else { return }
             switch result {
             case .success(let success):
@@ -64,7 +70,7 @@ extension SearchMainViewController {
                     return
                 }
                 mainView.showEmptyLabel(isDataEmpty: false)
-                if page == 1 {
+                if searchParam.page == 1 {
                     totalPage = success.totalPages
                     resultMovies.removeAll()
                     resultMovies = success.results
@@ -75,8 +81,7 @@ extension SearchMainViewController {
                     mainView.movieTableView.reloadData()
                 }
             case .failure(let failure):
-                // TODO: - Network 통신 실패 시 재시도 등
-                showAlert(withCancel: false, title: "Network Error", message: failure.message, actionTitle: "확인")
+                showAlert(withCancel: false, title: "네트워크 오류", message: failure.message, actionTitle: "확인")
             }
         }
     }
@@ -96,16 +101,16 @@ extension SearchMainViewController {
 // MARK: - SearchBarDelegate
 extension SearchMainViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        guard let text = searchBar.text,
-              text.trimmingCharacters(in: .whitespaces).count >= 2  else {
-            showAlert(withCancel: false, title: "입력 오류", message: "두 글자 이상 검색해주세요.", actionTitle: "확인")
+        guard let text = searchBar.text?.trimmingCharacters(in: .whitespaces),
+              text.count >= 1  else {
+            showAlert(withCancel: false, title: "입력 오류", message: "한 글자 이상 검색해주세요.", actionTitle: "확인")
             return
         }
-        searchText = text
-        if let searchText {
-            page = 1
-            fetchSearchMovieData(query: searchText, page: page)
+        if searchParam.query != text {
+            searchParam.page = 1
+            searchParam.query = text
             onUpdateSearchRecord?(text)
+            fetchSearchMovieData()
         }
     }
 }
@@ -142,11 +147,10 @@ extension SearchMainViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        if indexPath.row == page * 20 - 2 {
-            guard let searchText else { return }
-            page += 1
-            if page <= totalPage {
-                fetchSearchMovieData(query: searchText, page: page)
+        if indexPath.row == searchParam.page * 20 - 2 {
+            searchParam.page += 1
+            if searchParam.page <= totalPage {
+                fetchSearchMovieData()
             }
         }
     }

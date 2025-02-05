@@ -79,17 +79,10 @@ extension DetailMainViewController {
             switch result {
             case .success(let success):
                 backdropImages = Array(success.backdrops.prefix(5))
-                posterImages = Array(success.posters
-                    .filter { $0.language == "ko" || $0.language == "en"}
-                    .sorted(by: {
-                        if let first = $0.language, let second = $1.language {
-                            return first > second
-                        }
-                        return true
-                    }).prefix(10))
+                posterImages = success.posters
                 group.leave()
             case .failure(let failure):
-                showAlert(withCancel: false, title: "Network Error", message: failure.message, actionTitle: "확인")
+                showAlert(withCancel: false, title: "네트워크 오류", message: failure.message, actionTitle: "확인")
                 group.leave()
             }
         }
@@ -101,10 +94,10 @@ extension DetailMainViewController {
             guard let self else { return }
             switch result {
             case .success(let success):
-                casts = success.cast ?? []
+                casts = success.cast
                 group.leave()
             case .failure(let failure):
-                showAlert(withCancel: false, title: "Network Error", message: failure.message, actionTitle: "확인")
+                showAlert(withCancel: false, title: "네트워크 오류", message: failure.message, actionTitle: "확인")
                 group.leave()
             }
         }
