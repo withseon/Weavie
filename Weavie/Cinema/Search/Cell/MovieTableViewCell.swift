@@ -127,7 +127,7 @@ extension MovieTableViewCell {
     
     private func createGenreTags(genreIDs: [Int]) {
         genreIDs.forEach { genreID in
-            if let genre = Genre(rawValue: genreID) {
+            if let genre = Resource.Genre(rawValue: genreID) {
                 genreStackView.addArrangedSubview(GenreLabel(text: genre.name))
             }
         }

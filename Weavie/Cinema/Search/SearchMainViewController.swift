@@ -7,7 +7,7 @@
 
 import UIKit
 
-class SearchMainViewController: BaseViewController {
+final class SearchMainViewController: BaseViewController {
     private let mainView = SearchMainView()
     private var likedMovies = UserDefaultsManager.likedMovies ?? [] {
         willSet {
@@ -42,14 +42,14 @@ class SearchMainViewController: BaseViewController {
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        view.endEditing(true)
+        navigationItem.searchController?.searchBar.resignFirstResponder()
     }
     
     override func configureNavigation() {
         super.configureNavigation()
-        navigationItem.title = "영화 검색"
+        navigationItem.title = Resource.NavTitle.search.rawValue
         let searchController = UISearchController()
-        searchController.searchBar.placeholder = "영화를 검색해보세요."
+        searchController.searchBar.placeholder = Resource.Placeholder.searchMovie.rawValue
         searchController.hidesNavigationBarDuringPresentation = false
         searchController.automaticallyShowsCancelButton = false
         searchController.searchBar.delegate = self

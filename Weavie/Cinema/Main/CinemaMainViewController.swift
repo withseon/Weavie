@@ -7,7 +7,7 @@
 
 import UIKit
 
-class CinemaMainViewController: BaseViewController {
+final class CinemaMainViewController: BaseViewController {
     private let mainView = CinemaMainView()
     private var searchRecord = [String: Date]() {
         willSet {

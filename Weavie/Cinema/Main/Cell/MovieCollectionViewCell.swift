@@ -9,6 +9,7 @@ import UIKit
 import SnapKit
 
 class MovieCollectionViewCell: BaseCollectionViewCell {
+final class MovieCollectionViewCell: BaseCollectionViewCell {
     private let posterImageView = UIImageView()
     private let titleLabel = UILabel()
     let likeButton = UIButton()
