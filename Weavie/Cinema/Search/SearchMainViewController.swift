@@ -20,6 +20,7 @@ class SearchMainViewController: BaseViewController {
     private var page = 1
     private var resultMovies = [Movie]()
     var searchText: String?
+    var onUpdateSearchRecord: ((String) -> Void)?
     
     override func loadView() {
         view = mainView
@@ -104,6 +105,7 @@ extension SearchMainViewController: UISearchBarDelegate {
         if let searchText {
             page = 1
             fetchSearchMovieData(query: searchText, page: page)
+            onUpdateSearchRecord?(text)
         }
     }
 }

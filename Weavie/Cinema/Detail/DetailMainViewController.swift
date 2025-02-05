@@ -16,6 +16,7 @@ final class DetailMainViewController: BaseViewController {
     private var posterImages = [ImageInfo]()
     private var casts = [Cast]()
     
+    init(movie: Movie, isLiked: Bool, onUpdate: (() -> Void)?) {
         self.movie = movie
         self.isLiked = isLiked
         self.onUpdate = onUpdate

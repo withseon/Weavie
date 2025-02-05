@@ -9,12 +9,14 @@ import UIKit
 
 class CinemaMainViewController: BaseViewController {
     private let mainView = CinemaMainView()
-    // 더미데이터
-    private let user = User(nickname: "고래밥", imageNumber: 1, registerDate: Date())
-    private let likedMovie = [1, 2, 3, 4, 123, 23]
-    private var searchTexts = ["현빈", "스파이더", "해리포터", "소방관", "크리스마스"] {
-        didSet {
-            mainView.updateSearchRecordView(isEmpty: searchTexts.isEmpty)
+    private var searchRecord = [String: Date]() {
+        willSet {
+            mainView.updateSearchRecordView(isEmpty: newValue.isEmpty)
+            UserDefaultsManager.searchRecord = newValue
+            sortedSearchRecord = newValue.sorted(by: { $0.value > $1.value }).map { $0.key }
+        }
+    }
+    private var sortedSearchRecord = [String]()
     private var likedMovies = Set<Int>() {
         willSet {
             UserDefaultsManager.likedMovies = newValue
@@ -85,6 +87,12 @@ class CinemaMainViewController: BaseViewController {
     @objc
     private func searchButtonItemTapped() {
         let vc = SearchMainViewController()
+        vc.onUpdateSearchRecord = { [weak self] searchText in
+            guard let self else { return }
+            searchRecord[searchText] = Date.now
+            mainView.recentSearchCollectionView.reloadData()
+            mainView.recentSearchCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .left, animated: false)
+        }
         navigationController?.pushViewController(vc, animated: true)
     }
     
@@ -135,8 +143,7 @@ extension CinemaMainViewController {
     
     @objc
     private func deleteAllButtonTapped() {
-        print(#function)
-        searchTexts.removeAll()
+        searchRecord.removeAll()
         mainView.recentSearchCollectionView.reloadData()
     }
 }
@@ -145,7 +152,7 @@ extension CinemaMainViewController {
 extension CinemaMainViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if collectionView == mainView.recentSearchCollectionView {
-            return searchTexts.count
+            return searchRecord.count
         } else {
             return trendMovies.count
         }
@@ -154,7 +161,7 @@ extension CinemaMainViewController: UICollectionViewDelegate, UICollectionViewDa
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if collectionView == mainView.recentSearchCollectionView {
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RecentSearchCollectionViewCell.identifier, for: indexPath) as? RecentSearchCollectionViewCell else { return UICollectionViewCell() }
-            cell.configureContent(text: searchTexts[indexPath.item])
+            cell.configureContent(text: sortedSearchRecord[indexPath.item])
             let gesture = UITapGestureRecognizer(target: self, action: #selector(xmarkImageTapped))
             cell.setupXmark(tag: indexPath.item, gesture: gesture)
             return cell
@@ -173,7 +180,7 @@ extension CinemaMainViewController: UICollectionViewDelegate, UICollectionViewDa
     private func xmarkImageTapped(sender: UITapGestureRecognizer) {
         print(#function)
         guard let view = sender.view else { return }
-        searchTexts.remove(at: view.tag)
+        searchRecord[sortedSearchRecord[view.tag]] = nil
         mainView.recentSearchCollectionView.reloadData()
     }
     
