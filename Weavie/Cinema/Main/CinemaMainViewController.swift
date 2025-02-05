@@ -200,7 +200,13 @@ extension CinemaMainViewController: UICollectionViewDelegate, UICollectionViewDa
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == mainView.recentSearchCollectionView {
             let vc = SearchMainViewController()
-            vc.searchText = searchTexts[indexPath.item]
+            vc.searchText = sortedSearchRecord[indexPath.item]
+            vc.onUpdateSearchRecord = { [weak self] searchText in
+                guard let self else { return }
+                searchRecord[searchText] = Date()
+                mainView.recentSearchCollectionView.reloadData()
+                mainView.recentSearchCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .left, animated: false)
+            }
             navigationController?.pushViewController(vc, animated: true)
         } else {
             // 추천 영화
