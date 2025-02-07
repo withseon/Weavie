@@ -12,6 +12,12 @@ final class ProfileImageView: BaseView {
     private let profileImageView = UIImageView()
     private let cameraCoverView = UIView()
     private let cameraImageView = UIImageView()
+    let isCameraImage: Bool
+    
+    init(isCameraImage: Bool) {
+        self.isCameraImage = isCameraImage
+        super.init(frame: .zero)
+    }
     
     override func layoutSubviews() {
         profileImageView.layer.cornerRadius = self.frame.width / 2
@@ -44,6 +50,7 @@ final class ProfileImageView: BaseView {
         profileImageView.clipsToBounds = true
         profileImageView.contentMode = .scaleAspectFit
         
+        cameraCoverView.isHidden = !isCameraImage
         cameraCoverView.backgroundColor = .tint
         cameraImageView.clipsToBounds = true
         cameraImageView.image = UIImage(systemName: "camera.fill")
@@ -67,9 +74,5 @@ extension ProfileImageView {
             profileImageView.layer.borderWidth = 1
             profileImageView.alpha = 0.5
         }
-    }
-    
-    func hiddenCameraImage(isHidden: Bool) {
-        cameraCoverView.isHidden = isHidden
     }
 }

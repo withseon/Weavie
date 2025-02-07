@@ -9,7 +9,7 @@ import UIKit
 import SnapKit
 
 final class ProfileCardView: BaseView {
-    private let profileImageView = ProfileImageView()
+    private let profileImageView = ProfileImageView(isCameraImage: false)
     private let labelStackView = UIStackView()
     private let nicknameLabel = UILabel()
     private let registerDateLabel = UILabel()
@@ -51,7 +51,6 @@ final class ProfileCardView: BaseView {
         layer.cornerRadius = 10
         
         profileImageView.setState(isMain: true)
-        profileImageView.hiddenCameraImage(isHidden: true)
         
         labelStackView.axis = .vertical
         labelStackView.distribution = .fill

@@ -9,7 +9,7 @@ import UIKit
 import SnapKit
 
 final class ProfileImageControllerCell: BaseCollectionViewCell {
-    private let profileImageView = ProfileImageView()
+    private let profileImageView = ProfileImageView(isCameraImage: false)
     
     override var isSelected: Bool {
         willSet {
@@ -28,7 +28,6 @@ final class ProfileImageControllerCell: BaseCollectionViewCell {
     }
     
     override func configureView() {
-        profileImageView.hiddenCameraImage(isHidden: true)
         profileImageView.setState(isMain: false)
     }
 }

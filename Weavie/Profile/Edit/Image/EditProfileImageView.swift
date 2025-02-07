@@ -9,7 +9,7 @@ import UIKit
 import SnapKit
 
 final class EditProfileImageView: BaseView {
-    private let mainProfileImageView = ProfileImageView()
+    private let mainProfileImageView = ProfileImageView(isCameraImage: true)
     let profileImageCollectionView = UICollectionView(frame: .zero, collectionViewLayout: profileImageCollectionViewLayout())
     
     override func configureHierarchy() {

@@ -9,7 +9,7 @@ import UIKit
 import SnapKit
 
 final class EditProfileNicknameView: BaseView {
-    private let profileImageView = ProfileImageView()
+    private let profileImageView = ProfileImageView(isCameraImage: true)
     let nicknameTextField = UITextField()
     private let lineView = UIView()
     private let nicknameStateLabel = UILabel()
@@ -51,7 +51,6 @@ final class EditProfileNicknameView: BaseView {
     
     override func configureView() {
         profileImageView.setState(isMain: true)
-        profileImageView.hiddenCameraImage(isHidden: false)
         profileImageView.isUserInteractionEnabled = true
         
         nicknameTextField.textColor = .mainLabel
