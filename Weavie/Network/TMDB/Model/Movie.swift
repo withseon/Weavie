@@ -54,12 +54,7 @@ struct Movie: Decodable {
         self.id = try container.decode(Int.self, forKey: .id)
         self.backdropPath = try container.decodeIfPresent(String.self, forKey: .backdropPath) ?? "unknown"
         self.title = try container.decode(String.self, forKey: .title)
-        let overview = try container.decode(String.self, forKey: .overview)
-        if overview.isEmpty {
-            self.overview = "시놉시스 준비중입니다."
-        } else {
-            self.overview = overview
-        }
+        self.overview = try container.decode(String.self, forKey: .overview)
         self.posterPath = try container.decodeIfPresent(String.self, forKey: .posterPath) ?? "unknown"
         self.genreIDs = try container.decodeIfPresent([Int].self, forKey: .genreIDs) ?? []
         self.releaseDate = try container.decodeIfPresent(String.self, forKey: .releaseDate) ?? "unknown"

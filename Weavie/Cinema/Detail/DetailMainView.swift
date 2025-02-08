@@ -198,7 +198,8 @@ extension DetailMainView {
                                     .prefix(2)
                                     .map { Resource.Genre(rawValue: $0)?.name ?? "-" }.joined(separator: ", ")
         }
-        synopsisLabel.text = movie.overview
+        let overview = movie.overview
+        synopsisLabel.text = overview.isEmpty ? "시놉시스 준비중입니다." : overview
         
         let oldLabelHeight = synopsisLabel.intrinsicContentSize.height
         synopsisLabel.numberOfLines = 3
