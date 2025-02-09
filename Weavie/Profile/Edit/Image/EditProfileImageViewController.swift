@@ -9,13 +9,18 @@ import UIKit
 
 final class EditProfileImageViewController: BaseViewController {
     private let mainView = EditProfileImageView()
-    private var profileImageIndex: Int
-    var onUpdate: ((Int) -> Void)?
+    private let viewModel: EditProfileImageViewModel
+    private let updateProfileImage: ((Int) -> Void)?
     
-    init(profileImageIndex: Int, onUpdate: ((Int) -> Void)? = nil) {
-        self.profileImageIndex = profileImageIndex
-        self.onUpdate = onUpdate
+    init(imageIndex: Int, onUpdate: ((Int) -> Void)? = nil) {
+        viewModel = EditProfileImageViewModel(oldImageIndex: imageIndex)
+        viewModel.inputImageIndex.value = imageIndex
+        self.updateProfileImage = onUpdate
         super.init()
+    }
+    
+    deinit {
+        print("❗️EditProfile VC Deinit")
     }
     
     override func loadView() {
@@ -25,10 +30,12 @@ final class EditProfileImageViewController: BaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureCollectionView()
+        bindData()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
-        onUpdate?(profileImageIndex)
+        super.viewWillDisappear(animated)
+        viewModel.inputImageChange.value = ()
     }
     
     override func configureNavigation() {
@@ -40,21 +47,37 @@ final class EditProfileImageViewController: BaseViewController {
             navigationItem.title = Resource.NavTitle.editProfileImage.rawValue
         }
     }
-    
-    override func configureView() {
-        mainView.setProfileImageView(profileImageIndex: profileImageIndex)
+}
+
+// MARK: - VM bind
+extension EditProfileImageViewController {
+    private func bindData() {
+        viewModel.outputImageIndex.bind { [weak self] imageIndex in
+            print("profileImage:: outputImageIndex bind ===")
+            guard let self, let imageIndex else { return }
+            mainView.setProfileImageView(profileImageIndex: imageIndex)
+            mainView.profileImageCollectionView.selectItem(at: IndexPath(item: imageIndex, section: 0),
+                                                           animated: true,
+                                                           scrollPosition: .centeredVertically)
+        }
+        viewModel.outputImageChange.lazyBind { [weak self] selectedImageIndex in
+            print("profileImage:: outputImageChange bind ===")
+            guard let self, let selectedImageIndex else { return }
+            updateProfileImage?(selectedImageIndex)
+        }
     }
 }
 
+// MARK: - 컬렉션뷰 설정
 extension EditProfileImageViewController {
     private func configureCollectionView() {
         mainView.profileImageCollectionView.delegate = self
         mainView.profileImageCollectionView.dataSource = self
         mainView.profileImageCollectionView.register(ProfileImageControllerCell.self, forCellWithReuseIdentifier: ProfileImageControllerCell.identifier)
-        mainView.profileImageCollectionView.selectItem(at: IndexPath(item: profileImageIndex, section: 0), animated: true, scrollPosition: .centeredVertically)
     }
 }
 
+// MARK: - 컬렉션 뷰 델리게이트, 데이터소스
 extension EditProfileImageViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return Resource.AssetImage.profileCount
@@ -67,10 +90,6 @@ extension EditProfileImageViewController: UICollectionViewDelegate, UICollection
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let selectedProfileImageIndex = indexPath.item
-        if profileImageIndex != selectedProfileImageIndex {
-            mainView.setProfileImageView(profileImageIndex: selectedProfileImageIndex)
-            profileImageIndex = selectedProfileImageIndex
-        }
+        viewModel.inputImageIndex.value = indexPath.item
     }
 }
