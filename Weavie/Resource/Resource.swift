@@ -29,17 +29,6 @@ extension Resource {
     }
 }
 
-// MARK: - 닉네임 상태
-extension Resource {
-    enum NicknameState: String {
-        case correct = "사용할 수 있는 닉네임이에요."
-        case lengthViolation = "2글자 이상 10글자 미만으로 설정해 주세요."
-        case specialCharacterViolation = "닉네임이 @,#,$,%는 포함할 수 없어요."
-        case numberViolation = "닉네임에 숫자는 포함할 수 없어요."
-        case whitespaceViolation = "닉네임에 공백은 포함할 수 없어요."
-    }
-}
-
 // MARK: - 영화 장르
 extension Resource {
     enum Genre: Int, CaseIterable {

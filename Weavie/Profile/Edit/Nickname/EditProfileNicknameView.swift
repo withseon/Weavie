@@ -13,6 +13,9 @@ final class EditProfileNicknameView: BaseView {
     let nicknameTextField = UITextField()
     private let lineView = UIView()
     private let nicknameStateLabel = UILabel()
+    private let mbtiLabel = UILabel()
+    let mbtiCollectionView = UICollectionView(frame: .zero,
+                                              collectionViewLayout: getCollectionViewLayout())
     let doneButton = RoundBorderButton(title: "완료")
     
     override func configureHierarchy() {
@@ -20,6 +23,8 @@ final class EditProfileNicknameView: BaseView {
         addSubview(nicknameTextField)
         addSubview(lineView)
         addSubview(nicknameStateLabel)
+        addSubview(mbtiLabel)
+        addSubview(mbtiCollectionView)
         addSubview(doneButton)
     }
     
@@ -41,10 +46,21 @@ final class EditProfileNicknameView: BaseView {
         nicknameStateLabel.snp.makeConstraints { make in
             make.top.equalTo(lineView.snp.bottom).offset(12)
             make.height.equalTo(15)
-            make.leading.equalTo(nicknameTextField)
+            make.leading.equalToSuperview().inset(20)
         }
+        mbtiLabel.snp.makeConstraints { make in
+            make.top.equalTo(nicknameStateLabel.snp.bottom).offset(20)
+            make.leading.equalToSuperview().inset(20)
+        }
+        mbtiCollectionView.snp.makeConstraints { make in
+            make.top.equalTo(mbtiLabel)
+            make.trailing.equalToSuperview().inset(20)
+            make.width.equalTo(210)
+            make.height.equalTo(100)
+        }
+        
         doneButton.snp.makeConstraints { make in
-            make.top.equalTo(nicknameStateLabel.snp.bottom).offset(40)
+            make.bottom.equalTo(keyboardLayoutGuide.snp.top).offset(-20)
             make.horizontalEdges.equalToSuperview().inset(20)
         }
     }
@@ -62,16 +78,21 @@ final class EditProfileNicknameView: BaseView {
         nicknameStateLabel.font = .systemFont(ofSize: 13)
         nicknameStateLabel.textColor = .tint
         
-        doneButton.isEnabled = false
+        mbtiLabel.font = Resource.SystemFont.semibold16
+        mbtiLabel.textColor = .mainLabel
+        mbtiLabel.text = "MBTI"
+        
+        mbtiCollectionView.backgroundColor = .clear
     }
 }
 
 extension EditProfileNicknameView {
-    func setProfileImageView(profileImageIndex: Int, gesture: UIGestureRecognizer? = nil) {
+    func setProfileImageView(profileImageIndex: Int) {
         profileImageView.setProfileImage(image: Resource.AssetImage.profile(profileImageIndex).path)
-        if let gesture {
-            profileImageView.addGestureRecognizer(gesture)
-        }
+    }
+    
+    func setProfileImageGesture(gesture: UIGestureRecognizer) {
+        profileImageView.addGestureRecognizer(gesture)
     }
     
     func setNicknameTextField(text: String) {
@@ -82,12 +103,19 @@ extension EditProfileNicknameView {
         doneButton.isHidden = isHidden
     }
     
-    func setButtonEnable(isEnabled: Bool) {
-        doneButton.isEnabled = isEnabled
+    func updateNicknameState(stateText: String?) {
+        nicknameStateLabel.text = stateText
     }
     
-    func updateNicknameState(nicknameState: Resource.NicknameState) {
-        nicknameStateLabel.text = nicknameState.rawValue
-        doneButton.isEnabled = nicknameState == .correct ? true : false
+    func updateDoneButtonState(isEnabled: Bool) {
+        doneButton.isEnabled = isEnabled
+    }
+}
+
+extension EditProfileNicknameView {
+    static func getCollectionViewLayout() -> UICollectionViewFlowLayout {
+        let layout = UICollectionViewFlowLayout()
+        layout.itemSize = CGSize(width: 44, height: 44)
+        return layout
     }
 }

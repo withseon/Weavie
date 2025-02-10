@@ -10,5 +10,6 @@ import Foundation
 struct User: Codable {
     let nickname: String
     let imageIndex: Int
+    let mbti: [Int]
     let registerDate: Date
 }
