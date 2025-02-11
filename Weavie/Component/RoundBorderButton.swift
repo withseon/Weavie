@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import SnapKit
 
 final class RoundBorderButton: UIButton {
     init(title: String) {
@@ -18,7 +17,7 @@ final class RoundBorderButton: UIButton {
         config.baseBackgroundColor = .clear
         config.background.strokeColor = .tint
         config.background.strokeWidth = 2
-        config.contentInsets = ConstraintDirectionalInsets(top: 12, leading: 0, bottom: 12, trailing: 0)
+        config.contentInsets = NSDirectionalEdgeInsets(top: 12, leading: 0, bottom: 12, trailing: 0)
         
         configuration = config
     }
