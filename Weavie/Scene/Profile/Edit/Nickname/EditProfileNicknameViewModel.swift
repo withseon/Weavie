@@ -8,77 +8,78 @@
 import Foundation
 
 
-final class EditProfileNicknameViewModel {
-    var inputUser: Observable<User?> = Observable(nil)
-    var inputNickname: Observable<String?> = Observable(nil)
-    var inputImageIndex: Observable<Int?> = Observable(nil)
-    var inputSelectedIndex: Observable<Int?> = Observable(nil)
-    var inputDeselectedIndex: Observable<Int?> = Observable(nil)
-    var inputUserDefaultsSave: Observable<Void?> = Observable(nil)
-    var inputNotificationPost: Observable<Void?> = Observable(nil)
-    
-    private(set) var outputUser: Observable<(nickname: String, mbtiIndicies: [Int])?> = Observable(nil)
-    private(set) var outputNicknameState: Observable<String?> = Observable(nil)
-    private(set) var outputImageIndex: Observable<Int> = Observable((0..<Resource.AssetImage.profileCount).randomElement() ?? 0)
-    private(set) var outputDeselectedIndex: Observable<Int?> = Observable(nil)
-    private(set) var outputButtonEnable: Observable<Bool> = Observable(false)
-    private(set) var outputUserDefaultsDone: Observable<Void?> = Observable(nil)
-    private(set) var outputNotificationPost: Observable<Void?> = Observable(nil)
-    
+final class EditProfileNicknameViewModel: BaseViewModel {
+    private(set) var input: Input
+    private(set) var output: Output
     private var oldUser: User?
     private var nickname = ""
     private var isNicknameValid = false
     let mbtiTitles = ["E", "S", "T", "J", "I", "N", "F", "P"]
-    private var selectedMBTIData = ["E": false,
-                                    "S": false,
-                                    "T": false,
-                                    "J": false,
-                                    "I": false,
-                                    "N": false,
-                                    "F": false,
-                                    "P": false]
+    private var selectedMBTIData = [String: Bool]()
     
+    struct Input {
+        var user: Observable<User?> = Observable(nil)
+        var nickname: Observable<String> = Observable(EmptyValue.text)
+        var imageIndex: Observable<Int> = Observable(EmptyValue.index)
+        var selectedIndex: Observable<Int> = Observable(EmptyValue.index)
+        var deselectedIndex: Observable<Int> = Observable(EmptyValue.index)
+        var userDefaultsSave: Observable<Void> = Observable(())
+        var notificationPost: Observable<Void> = Observable(())
+    }
+    
+    struct Output {
+        var user: Observable<(nickname: String, mbtiIndicies: [Int])> = Observable((EmptyValue.text, []))
+        var nicknameState: Observable<String> = Observable(EmptyValue.text)
+        var imageIndex: Observable<Int> = Observable((0..<Resource.AssetImage.profileCount).randomElement() ?? 0)
+        var deselectedIndex: Observable<Int> = Observable(EmptyValue.index)
+        var buttonEnable: Observable<Bool> = Observable(false)
+        var userDefaultsDone: Observable<Void> = Observable(())
+        var notificationPost: Observable<Void> = Observable(())
+    }
+        
     init() {
-        bind()
+        input = Input()
+        output = Output()
+        transform()
     }
     
     deinit {
         print("❗️EditNickname VM Deinit")
     }
     
-    private func bind() {
-        inputUser.lazyBind { [weak self] user in
+    func transform() {
+        input.user.lazyBind { [weak self] user in
             print("=== inputUser bind")
             guard let self, let user else { return }
             updateUserInfo(user: user)
             updateDoneButtonState()
         }
-        inputNickname.lazyBind { [weak self] text in
+        input.nickname.lazyBind { [weak self] text in
             print("=== inputNickname bind")
             guard let self else { return }
             validateNickname(text)
         }
-        inputImageIndex.lazyBind { [weak self] index in
+        input.imageIndex.lazyBind { [weak self] index in
             print("=== inputImageIndex bind")
-            guard let self, let index else { return }
-            outputImageIndex.value = index
+            guard let self else { return }
+            output.imageIndex.value = index
         }
-        inputSelectedIndex.lazyBind { [weak self] index in
+        input.selectedIndex.lazyBind { [weak self] index in
             print("=== inputSelectedIndex bind")
-            guard let self, let index else { return }
+            guard let self else { return }
             selectedIndex(index)
         }
-        inputDeselectedIndex.lazyBind { [weak self] index in
+        input.deselectedIndex.lazyBind { [weak self] index in
             print("=== inputDeselectedIndex bind")
-            guard let self, let index else { return }
+            guard let self else { return }
             deselectedIndex(index)
         }
-        inputUserDefaultsSave.lazyBind { [weak self] _ in
+        input.userDefaultsSave.lazyBind { [weak self] _ in
             print("=== inputUserDefaultsSave bind")
             guard let self else { return }
             saveUserDefaults()
         }
-        inputNotificationPost.lazyBind { [weak self] _ in
+        input.notificationPost.lazyBind { [weak self] _ in
             print("=== inputNotificationPost bind")
             guard let self else { return }
             postNotification()
@@ -92,8 +93,8 @@ extension EditProfileNicknameViewModel {
         oldUser = user
         nickname = user.nickname
         user.mbti.forEach { selectedMBTIData[mbtiTitles[$0]] = true }
-        outputUser.value = (user.nickname, user.mbti)
-        outputImageIndex.value = user.imageIndex
+        output.user.value = (user.nickname, user.mbti)
+        output.imageIndex.value = user.imageIndex
     }
     
     private func updateDoneButtonState() {
@@ -105,8 +106,8 @@ extension EditProfileNicknameViewModel {
 // MARK: - 완료 버튼 enable 설정
 extension EditProfileNicknameViewModel {
     private func validateDoneButton() {
-        let isMBTIValid = selectedMBTIData.values.filter { $0 }.count == 4
-        outputButtonEnable.value = isNicknameValid && isMBTIValid ? true : false
+        let isMBTIValid = selectedMBTIData.count == 4
+        output.buttonEnable.value = isNicknameValid && isMBTIValid ? true : false
     }
 }
 
@@ -117,19 +118,19 @@ extension EditProfileNicknameViewModel {
         guard let currentText = text?.trimmingCharacters(in: .whitespacesAndNewlines) else { return }
         
         if currentText.count < 2 || currentText.count > 9 {
-            outputNicknameState.value = NicknameState.lengthViolation.rawValue
+            output.nicknameState.value = NicknameState.lengthViolation.rawValue
             isNicknameValid = false
         } else if currentText.rangeOfCharacter(from: .whitespacesAndNewlines) != nil {
-            outputNicknameState.value = NicknameState.whitespaceViolation.rawValue
+            output.nicknameState.value = NicknameState.whitespaceViolation.rawValue
             isNicknameValid = false
         } else if currentText.rangeOfCharacter(from: .decimalDigits) != nil {
-            outputNicknameState.value = NicknameState.numberViolation.rawValue
+            output.nicknameState.value = NicknameState.numberViolation.rawValue
             isNicknameValid = false
         } else if currentText.rangeOfCharacter(from: specialCharSet) != nil {
-            outputNicknameState.value = NicknameState.specialCharacterViolation.rawValue
+            output.nicknameState.value = NicknameState.specialCharacterViolation.rawValue
             isNicknameValid = false
         } else {
-            outputNicknameState.value = NicknameState.correct.rawValue
+            output.nicknameState.value = NicknameState.correct.rawValue
             nickname = currentText
             isNicknameValid = true
         }
@@ -144,19 +145,19 @@ extension EditProfileNicknameViewModel {
         selectedMBTIData[mbtiTitles[index]] = true
         if index > 3 {
             let deselectedIndex = index - 4
-            outputDeselectedIndex.value = deselectedIndex
-            selectedMBTIData[mbtiTitles[deselectedIndex]] = false
+            output.deselectedIndex.value = deselectedIndex
+            selectedMBTIData[mbtiTitles[deselectedIndex]] = nil
         } else {
             let deselectedIndex = index + 4
-            outputDeselectedIndex.value = deselectedIndex
-            selectedMBTIData[mbtiTitles[deselectedIndex]] = false
+            output.deselectedIndex.value = deselectedIndex
+            selectedMBTIData[mbtiTitles[deselectedIndex]] = nil
         }
         validateDoneButton()
     }
     
     // deselected 됐을 때
     private func deselectedIndex(_ index: Int) {
-        selectedMBTIData[mbtiTitles[index]] = false
+        selectedMBTIData[mbtiTitles[index]] = nil
         validateDoneButton()
     }
 }
@@ -164,21 +165,23 @@ extension EditProfileNicknameViewModel {
 // MARK: - UserDefaults 저장
 extension EditProfileNicknameViewModel {
     private func saveUserDefaults() {
-        let mbtiIndices = selectedMBTIData.filter { $0.value }.keys.compactMap { mbtiTitles.firstIndex(of: $0) }
+        let mbtiIndices = selectedMBTIData.compactMap { mbtiTitles.firstIndex(of: $0.key) }
         if let oldUser {
-            UserDefaultsManager.user = User(nickname: nickname,
-                                            imageIndex: outputImageIndex.value,
-                                            mbti: mbtiIndices,
-                                            registerDate: oldUser.registerDate)
+            if oldUser.nickname != nickname || oldUser.imageIndex != output.imageIndex.value || oldUser.mbti != mbtiIndices {
+                UserDefaultsManager.user = User(nickname: nickname,
+                                                imageIndex: output.imageIndex.value,
+                                                mbti: mbtiIndices,
+                                                registerDate: oldUser.registerDate)
+            }
         } else {
             UserDefaultsManager.user = User(nickname: nickname,
-                                            imageIndex: outputImageIndex.value,
+                                            imageIndex: output.imageIndex.value,
                                             mbti: mbtiIndices,
                                             registerDate: Date())
             UserDefaultsManager.likedMovies = []
             UserDefaultsManager.searchRecord = [:]
         }
-        outputUserDefaultsDone.value = ()
+        output.userDefaultsDone.value = ()
     }
 }
 
@@ -186,7 +189,7 @@ extension EditProfileNicknameViewModel {
 extension EditProfileNicknameViewModel {
     private func postNotification() {
         NotificationManager.center.post(name: .user, object: nil)
-        outputNotificationPost.value = ()
+        output.notificationPost.value = ()
     }
 }
 

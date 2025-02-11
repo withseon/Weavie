@@ -14,7 +14,7 @@ final class EditProfileImageViewController: BaseViewController {
     
     init(imageIndex: Int, onUpdate: ((Int) -> Void)? = nil) {
         viewModel = EditProfileImageViewModel(oldImageIndex: imageIndex)
-        viewModel.inputImageIndex.value = imageIndex
+        viewModel.input.imageIndex.value = imageIndex
         self.updateProfileImage = onUpdate
         super.init()
     }
@@ -35,7 +35,7 @@ final class EditProfileImageViewController: BaseViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        viewModel.inputImageChange.value = ()
+        viewModel.input.imageChange.value = ()
     }
     
     override func configureNavigation() {
@@ -52,17 +52,17 @@ final class EditProfileImageViewController: BaseViewController {
 // MARK: - VM bind
 extension EditProfileImageViewController {
     private func bindData() {
-        viewModel.outputImageIndex.bind { [weak self] imageIndex in
+        viewModel.output.imageIndex.bind { [weak self] imageIndex in
             print("profileImage:: outputImageIndex bind ===")
-            guard let self, let imageIndex else { return }
+            guard let self else { return }
             mainView.setProfileImageView(profileImageIndex: imageIndex)
             mainView.profileImageCollectionView.selectItem(at: IndexPath(item: imageIndex, section: 0),
                                                            animated: true,
                                                            scrollPosition: .centeredVertically)
         }
-        viewModel.outputImageChange.lazyBind { [weak self] selectedImageIndex in
+        viewModel.output.imageChange.lazyBind { [weak self] selectedImageIndex in
             print("profileImage:: outputImageChange bind ===")
-            guard let self, let selectedImageIndex else { return }
+            guard let self else { return }
             updateProfileImage?(selectedImageIndex)
         }
     }
@@ -90,6 +90,6 @@ extension EditProfileImageViewController: UICollectionViewDelegate, UICollection
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        viewModel.inputImageIndex.value = indexPath.item
+        viewModel.input.imageIndex.value = indexPath.item
     }
 }

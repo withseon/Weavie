@@ -7,30 +7,40 @@
 
 import Foundation
 
-final class EditProfileImageViewModel {
+final class EditProfileImageViewModel: BaseViewModel {
+    private(set) var input: Input
+    private(set) var output: Output
     private var oldImageIndex: Int
-    var inputImageIndex: Observable<Int?> = Observable(nil)
-    var inputImageChange: Observable<Void?> = Observable(nil)
-    var inputOldImageChange: Observable<Int?> = Observable(nil)
-    private(set) var outputImageIndex: Observable<Int?> = Observable(nil)
-    private(set) var outputImageChange: Observable<Int?> = Observable(nil)
+    
+    struct Input {
+        var imageIndex: Observable<Int> = Observable(EmptyValue.index)
+        var imageChange: Observable<Void> = Observable(())
+        var oldImageChange: Observable<Int> = Observable(EmptyValue.index)
+    }
+    
+    struct Output {
+        private(set) var imageIndex: Observable<Int> = Observable(EmptyValue.index)
+        var imageChange: Observable<Int> = Observable(EmptyValue.index)
+    }
     
     init(oldImageIndex: Int) {
         self.oldImageIndex = oldImageIndex
-        bindData()
+        input = Input()
+        output = Output()
+        transform()
     }
     
     deinit {
         print("❗️EditProfile VM Deinit")
     }
     
-    private func bindData() {
-        inputImageIndex.lazyBind { [weak self] imageIndex in
+    func transform() {
+        input.imageIndex.lazyBind { [weak self] imageIndex in
             print("=== profileImage:: inputImageIndex bind")
-            guard let self, let imageIndex else { return }
+            guard let self else { return }
             updateSelectedImage(imageIndex)
         }
-        inputImageChange.lazyBind { [weak self] _ in
+        input.imageChange.lazyBind { [weak self] _ in
             print("=== profileImage:: inputImageChange bind")
             guard let self else { return }
             changeImage()
@@ -40,15 +50,15 @@ final class EditProfileImageViewModel {
 
 extension EditProfileImageViewModel {
     private func updateSelectedImage(_ index: Int) {
-        if index != outputImageIndex.value {
-            outputImageIndex.value = index
+        if index != output.imageIndex.value {
+            output.imageIndex.value = index
         }
     }
     
     private func changeImage() {
-        guard let selectedImageIndex = outputImageIndex.value else { return }
+        let selectedImageIndex = output.imageIndex.value
         if oldImageIndex != selectedImageIndex {
-            outputImageChange.value = selectedImageIndex
+            output.imageChange.value = selectedImageIndex
             oldImageIndex = selectedImageIndex
         }
     }

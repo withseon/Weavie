@@ -49,7 +49,7 @@ final class EditProfileNicknameViewController: BaseViewController {
     
     @objc
     private func saveButtonTapped(sender: UIButton) {
-        viewModel.inputUserDefaultsSave.value = ()
+        viewModel.input.userDefaultsSave.value = ()
     }
     
     @objc
@@ -67,9 +67,9 @@ final class EditProfileNicknameViewController: BaseViewController {
     
     @objc
     private func profileImageViewTapped() {
-        let vc = EditProfileImageViewController(imageIndex: viewModel.outputImageIndex.value) { [weak self] imageIndex in
+        let vc = EditProfileImageViewController(imageIndex: viewModel.output.imageIndex.value) { [weak self] imageIndex in
             guard let self else { return }
-            viewModel.inputImageIndex.value = imageIndex
+            viewModel.input.imageIndex.value = imageIndex
         }
         navigationController?.pushViewController(vc, animated: true)
     }
@@ -77,9 +77,9 @@ final class EditProfileNicknameViewController: BaseViewController {
 
 extension EditProfileNicknameViewController {
     private func bindData() {
-        viewModel.outputUser.bind { [weak self] userInfo in
+        viewModel.output.user.bind { [weak self] userInfo in
             print("Nickname:: outputUser bind ===")
-            guard let self, let userInfo else { return }
+            guard let self else { return }
             mainView.setNicknameTextField(text: userInfo.nickname)
             userInfo.mbtiIndicies.forEach { [weak self] index in
                 guard let self else { return }
@@ -88,38 +88,38 @@ extension EditProfileNicknameViewController {
                                                        scrollPosition: .centeredHorizontally)
             }
         }
-        viewModel.outputNicknameState.lazyBind { [weak self] nicknameState in
+        viewModel.output.nicknameState.lazyBind { [weak self] nicknameState in
             print("Nickname:: outputNicknameState bind ===")
             guard let self else { return }
             mainView.updateNicknameState(stateText: nicknameState)
         }
-        viewModel.outputDeselectedIndex.lazyBind { [weak self] index in
+        viewModel.output.deselectedIndex.lazyBind { [weak self] index in
             print("Nickname:: outputDeselectedIndex bind ===")
-            guard let self, let index else { return }
+            guard let self else { return }
             mainView.mbtiCollectionView.deselectItem(at: IndexPath(item: index, section: 0), animated: false)
         }
-        viewModel.outputButtonEnable.bind { [weak self] isEnabled in
+        viewModel.output.buttonEnable.bind { [weak self] isEnabled in
             print("Nickname:: outputButtonEnable bind ===")
             guard let self else { return }
             mainView.updateDoneButtonState(isEnabled: isEnabled)
             navigationItem.rightBarButtonItem?.isEnabled = isEnabled
         }
-        viewModel.outputImageIndex.bind { [weak self] imageIndex in
+        viewModel.output.imageIndex.bind { [weak self] imageIndex in
             print("Nickname:: outputImageIndex bind ===")
             guard let self else { return }
             mainView.setProfileImageView(profileImageIndex: imageIndex)
         }
-        viewModel.outputUserDefaultsDone.lazyBind { [weak self] _ in
+        viewModel.output.userDefaultsDone.lazyBind { [weak self] _ in
             print("Nickname:: outputUserDefaultsDone bind ===")
             guard let self,
                   let rootView = navigationController?.viewControllers.first else { return }
             if rootView is OnboardingViewController {
                 changeRootViewController(vc: MainTabBarController())
             } else {
-                viewModel.inputNotificationPost.value = ()
+                viewModel.input.notificationPost.value = ()
             }
         }
-        viewModel.outputNotificationPost.lazyBind { [weak self] _ in
+        viewModel.output.notificationPost.lazyBind { [weak self] _ in
             guard let self else { return }
             dismiss(animated: true)
         }
@@ -146,7 +146,8 @@ extension EditProfileNicknameViewController {
 
 extension EditProfileNicknameViewController: UITextFieldDelegate {
     func textFieldDidChangeSelection(_ textField: UITextField) {
-        viewModel.inputNickname.value = textField.text
+        guard let text = textField.text else { return }
+        viewModel.input.nickname.value = text
     }
 }
 
@@ -162,16 +163,16 @@ extension EditProfileNicknameViewController: UICollectionViewDelegate, UICollect
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        viewModel.inputSelectedIndex.value = indexPath.item
+        viewModel.input.selectedIndex.value = indexPath.item
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        viewModel.inputDeselectedIndex.value = indexPath.item
+        viewModel.input.deselectedIndex.value = indexPath.item
     }
 }
 
 extension EditProfileNicknameViewController {
     func updateUserInfo(user: User) {
-        viewModel.inputUser.value = user
+        viewModel.input.user.value = user
     }
 }
